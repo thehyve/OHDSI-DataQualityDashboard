@@ -1,0 +1,12 @@
+reference:
+  - type: TableRequiredCheck
+    description: Required table %s exists
+    context: VERIFICATION
+    category: CONFORMANCE
+    subcategory: RELATIONAL
+
+checks:
+  - id: 1
+    type: TableRequiredCheck
+    tableName: PERSON
+    threshold: 1
