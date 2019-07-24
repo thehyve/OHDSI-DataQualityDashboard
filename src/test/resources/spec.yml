@@ -4,9 +4,33 @@ reference:
     context: VERIFICATION
     category: CONFORMANCE
     subcategory: RELATIONAL
+  - type: FieldForeignKeyCheck
+    description: Foreign key %s.%s refer a value from %s.%s
+    context: VERIFICATION
+    category: CONFORMANCE
+    subcategory: RELATIONAL
+  - type: ConceptGenderCheck
+    description: Gender of %s with %s = %s should be %s
+    context: VERIFICATION
+    category: CONFORMANCE
+    subcategory: RELATIONAL
 
 checks:
   - id: 1
     type: TableRequiredCheck
-    tableName: PERSON
-    threshold: 1
+    cdmTableName: PERSON
+    threshold: 0
+  - id: 2
+    type: FieldForeignKeyCheck
+    cdmTableName: condition_occurrence
+    cdmFieldName: condition_concept_id
+    fkTableName: concept
+    fkFieldName: concept_id
+    threshold: 0
+  - id: 3
+    type: ConceptGenderCheck
+    cdmTableName: condition_occurrence
+    cdmFieldName: condition_concept_id
+    conceptId: 198806
+    plausibleGender: Male
+    threshold: 0

@@ -14,7 +14,7 @@ public class Measurement extends CheckResult {
     protected final Float proportion;
 
     @Builder
-    protected Measurement(Integer checkId, Integer count, Float proportion) {
+    public Measurement(Integer checkId, Integer count, Float proportion) {
 
         super(checkId);
         this.count = count;

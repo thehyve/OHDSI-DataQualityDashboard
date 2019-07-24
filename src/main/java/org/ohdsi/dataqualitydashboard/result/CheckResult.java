@@ -1,7 +1,9 @@
 package org.ohdsi.dataqualitydashboard.result;
 
+import lombok.Getter;
 import lombok.NonNull;
 
+@Getter
 public abstract class CheckResult {
 
     @NonNull

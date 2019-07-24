@@ -1,33 +1,24 @@
 package org.ohdsi.dataqualitydashboard.check.impl.table;
 
-import org.ohdsi.dataqualitydashboard.check.meta.CheckCategory;
-import org.ohdsi.dataqualitydashboard.check.meta.CheckContext;
-import org.ohdsi.dataqualitydashboard.check.meta.CheckSubcategory;
-import org.ohdsi.dataqualitydashboard.check.meta.CheckType;
-
-import java.beans.ConstructorProperties;
+import org.ohdsi.dataqualitydashboard.util.Utils;
 
 public class TableRequiredCheck extends TableCheck {
 
-    private static final String template = "/check/table/tableRequiredCheck.sql";
+    @Override
+    public String getDescription() {
 
-    @ConstructorProperties({ "id", "type", "description", "context", "category", "subcategory", "threshold", "tableName" })
-    public TableRequiredCheck(
-        Integer id,
-        CheckType type,
-        String description,
-        CheckContext context,
-        CheckCategory category,
-        CheckSubcategory subcategory,
-        Float threshold,
-        String tableName
-    ) {
-
-        super(id, type, String.format(description, tableName), context, category, subcategory, threshold, tableName);
+        return String.format(description, getCdmTableName());
     }
 
-    public String getTemplatePath() {
+    @Override
+    public String getViolatingRowsSql() {
 
-        return template;
+        return Utils.getResourceAsString("/check/table/requiredViolators.sql");
+    }
+
+    @Override
+    public String getAllCountSql() {
+
+        return Utils.getResourceAsString("/check/table/requiredAllCount.sql");
     }
 }

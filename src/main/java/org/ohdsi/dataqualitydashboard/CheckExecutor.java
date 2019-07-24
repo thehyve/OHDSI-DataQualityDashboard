@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,12 @@ public class CheckExecutor {
     private static final String REFERENCE_PROP = "reference";
     private static final String CHECKS_PROP = "checks";
     private static final String TYPE_PROP = "type";
-    private static final String SCHEMA_PROP = "schema";
+    private static final String SCHEMA_PROP = "cdmDatabaseSchema";
 
     private final ConnectionDetails connectionDetails;
     private DataSource dataSource;
     private ExecutorService executor;
+    private String checkSkeletonSql = Utils.getResourceAsString("/check/check.sql");
 
     private Boolean writeToDb; // TODO
 
@@ -58,7 +60,7 @@ public class CheckExecutor {
         this.initThreadPool(maxThreadCount);
     }
 
-    public List<Check> loadChecks(String configYml) {
+    public Map<Integer, Check> loadChecks(String configYml) {
 
         Yaml yaml = new Yaml();
         Map<String, Object> configMap = yaml.load(configYml);
@@ -67,22 +69,25 @@ public class CheckExecutor {
         List<Map<String, String>> checkDataList = (List) configMap.get(CHECKS_PROP);
 
         var objectMapper = new ObjectMapper();
-        return checkDataList.stream()
-                .map(checkData -> {
-                    var ref = referenceDataList.stream()
-                            .filter(r -> Objects.equals(r.get(TYPE_PROP), checkData.get(TYPE_PROP)))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException(CHECK_LOADING_ERROR));
 
-                    var data = new HashMap<>(ref);
-                    data.putAll(checkData);
+        Map<Integer, Check> idToCheckMap = new HashMap<>();
+        checkDataList.forEach(checkData -> {
+            var ref = referenceDataList.stream()
+                    .filter(r -> Objects.equals(r.get(TYPE_PROP), checkData.get(TYPE_PROP)))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException(CHECK_LOADING_ERROR));
 
-                    return objectMapper.convertValue(data, Check.class);
-                })
-                .collect(Collectors.toList());
+            var data = new HashMap<>(ref);
+            data.putAll(checkData);
+
+            Check check = objectMapper.convertValue(data, Check.class);
+
+            idToCheckMap.put(check.getId(), check);
+        });
+        return idToCheckMap;
     }
 
-    public List<CheckResult> run(List<Check> checkList) {
+    public List<CheckResult> run(Collection<Check> checkList) {
 
         List<CompletableFuture<CheckResult>> futures = checkList.stream()
                 .filter(c -> c instanceof PrimaryCheck)
@@ -108,9 +113,8 @@ public class CheckExecutor {
         this.executor = Executors.newFixedThreadPool(maxThreadCount);
     }
 
-    private String buildCheckSql(PrimaryCheck check) {
+    public String buildCheckSql(PrimaryCheck check) {
 
-        var template = Utils.getResourceAsString(check.getTemplatePath());
 
         var paramKeys = new ArrayList<String>(Arrays.asList(SCHEMA_PROP));
         paramKeys.addAll(check.getParams().keySet());
@@ -118,14 +122,13 @@ public class CheckExecutor {
         var paramVals = new ArrayList<String>(Arrays.asList(connectionDetails.getSchema()));
         paramVals.addAll(check.getParams().values());
 
-        var renderedSql = SqlRender.renderSql(
-                template,
-                paramKeys.toArray(new String[0]),
-                paramVals.toArray(new String[0])
-        );
-        var translatedSql = SqlTranslate.translateSql(renderedSql, connectionDetails.getDbms());
+        var violatorsSql = SqlRender.renderSql(check.getViolatingRowsSql(), paramKeys.toArray(new String[0]), paramVals.toArray(new String[0]));
+        var allCntSql = SqlRender.renderSql(check.getAllCountSql(), paramKeys.toArray(new String[0]), paramVals.toArray(new String[0]));
 
-        return translatedSql;
+        var sql = SqlRender.renderSql(checkSkeletonSql, new String[]{"violatorsSql", "allCountSql"}, new String[]{violatorsSql, allCntSql});
+        sql = SqlTranslate.translateSql(sql, connectionDetails.getDbms());
+
+        return sql;
     }
 
     private CheckResult runCheck(PrimaryCheck check) {
@@ -153,7 +156,7 @@ public class CheckExecutor {
                 }
             }
         } catch (SQLException ex) {
-            throw new RuntimeException(ex);
+            return new Measurement(check.getId(), null, 1F);
         }
     }
 
