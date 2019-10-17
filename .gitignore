@@ -18,7 +18,7 @@ statement_*.sql
 errorReport.txt
 
 # output files
-inst/results.json
+**results.json
 
 # Java compiled files
 /bin
@@ -32,3 +32,4 @@ errorReport.txt
 output/
 results/
 hs_err_pid*.log
+inst/shinyApps/www/data/
