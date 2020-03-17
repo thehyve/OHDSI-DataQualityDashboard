@@ -20,7 +20,11 @@ FROM
 		SELECT '@cdmTableName.@cdmFieldName' AS violating_field, cdmTable.* 
 		  FROM @cdmDatabaseSchema.@cdmTableName cdmTable
 		  join @cdmDatabaseSchema.concept co ON cdmTable.@cdmFieldName = co.concept_id
-		  WHERE co.concept_id != 0 AND (co.standard_concept != 'S' OR co.invalid_reason IS NOT NULL ) 
+		  WHERE co.concept_id != 0 AND (
+		  {@cdmVersion != "4"}?{
+		    co.standard_concept != 'S' OR
+		  }
+		  co.invalid_reason IS NOT NULL ) 
   ) violated_rows
 ) violated_row_count,
 ( 

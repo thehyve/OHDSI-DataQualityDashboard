@@ -8,6 +8,7 @@ cdmDatabaseSchema = @cdmDatabaseSchema
 cdmTableName = @cdmTableName
 cdmFieldName = @cdmFieldName
 fkClass = @fkClass
+cdmVersion = @cdmVersion
 **********/
 
 
@@ -22,7 +23,13 @@ FROM
 		FROM @cdmDatabaseSchema.@cdmTableName cdmTable
 		LEFT JOIN @cdmDatabaseSchema.concept co
 		ON cdmTable.@cdmFieldName = co.concept_id
-        WHERE co.concept_id != 0 AND (co.concept_class_id != '@fkClass') 
+        WHERE co.concept_id != 0 AND 
+        {@cdmVersion == "4"}?{
+         (co.concept_class != '@fkClass') 
+        }:{
+          (co.concept_class_id != '@fkClass') 
+        }
+        
 	) violated_rows
 ) violated_row_count,
 ( 
