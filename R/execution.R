@@ -445,7 +445,19 @@ executeDqChecks <- function(connectionDetails,
   sql <- SqlRender::render(sql = "select * from @cdmDatabaseSchema.cdm_source;",
                            cdmDatabaseSchema = cdmDatabaseSchema)
   sql <- SqlRender::translate(sql = sql, targetDialect = connectionDetails$dbms)
-  metadata <- DatabaseConnector::querySql(connection = connection, sql = sql)
+  metadata <- tryCatch(expr = DatabaseConnector::querySql(connection = connection, sql = sql), 
+                       error = function(e) {
+                         data.frame(CDM_SOURCE_NAME = cdmSourceName,
+                                    CDM_SOURCE_ABBREVIATION = "",
+                                    CDM_HOLDER = "",
+                                    SOURCE_DESCRIPTION = "",
+                                    SOURCE_DOCUMENTATION_REFERENCE = "",
+                                    CDM_ETL_REFERENCE = "",
+                                    SOURCE_RELEASE_DATE = "",
+                                    CDM_RELEASE_DATE = "",
+                                    CDM_VERSION = cdmVersion,
+                                    VOCABULARY_VERSION = "")
+                       })
   
   metadata$DQD_VERSION <- as.character(packageVersion("DataQualityDashboard"))
   
