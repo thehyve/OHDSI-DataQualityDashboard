@@ -247,7 +247,9 @@ executeDqChecks <- function(connectionDetails,
                                               connectionDetails, 
                                               connection,
                                               cdmDatabaseSchema, 
-                                              outputFolder, sqlOnly)
+                                              outputFolder, 
+                                              cdmVersion,
+                                              sqlOnly)
   ParallelLogger::stopCluster(cluster = cluster)
   
   if (numThreads == 1 & !sqlOnly) {
@@ -297,6 +299,7 @@ executeDqChecks <- function(connectionDetails,
                       connection,
                       cdmDatabaseSchema, 
                       outputFolder, 
+                      cdmVersion,
                       sqlOnly) {
   
   library(magrittr)
