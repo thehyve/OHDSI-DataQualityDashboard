@@ -269,7 +269,8 @@ executeDqChecks <- function(connectionDetails,
                                     startTime = startTime,
                                     tableChecks = tableChecks, 
                                     fieldChecks = fieldChecks,
-                                    conceptChecks = conceptChecks)
+                                    conceptChecks = conceptChecks,
+                                    cdmVersion = cdmVersion)
     
     ParallelLogger::logInfo("Execution Complete")  
   }
@@ -436,7 +437,8 @@ executeDqChecks <- function(connectionDetails,
                               startTime,
                               tableChecks,
                               fieldChecks,
-                              conceptChecks) {
+                              conceptChecks,
+                              cdmVersion) {
   
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection = connection))
