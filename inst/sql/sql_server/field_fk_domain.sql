@@ -25,7 +25,7 @@ FROM
 		    ON cdmTable.@cdmFieldName = co.concept_id
 		 WHERE co.concept_id != 0 AND 
 		 {@cdmVersion == "4"}?{
-		  co.vocabulary_id not in ('@fkDomain')
+		  co.vocabulary_id not in (@fkDomain)
 		 }:{
 		  co.domain_id != '@fkDomain'
 		 }
