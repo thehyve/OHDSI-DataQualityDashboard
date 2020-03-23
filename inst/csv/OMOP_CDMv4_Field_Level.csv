@@ -31,7 +31,7 @@ VISIT_OCCURRENCE,care_site_id,No,,integer,0,This field provides information abou
 VISIT_OCCURRENCE,visit_source_concept_id,No,,integer,0,,If the visit source value is coded in the source data using an OMOP supported vocabulary put the concept id representing the source value here.,No,,Yes,0,CONCEPT,CONCEPT_ID,,,,,No,,Yes,100,No,,Yes,100,No,,,,,,,,,,No,
 CONDITION_OCCURRENCE,condition_occurrence_id,Yes,0,bigint,0,,,Yes,0,No,,,,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 CONDITION_OCCURRENCE,person_id,Yes,0,bigint,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
-CONDITION_OCCURRENCE,condition_concept_id,Yes,0,integer,0,"The CONDITION_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies",,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,5",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
+CONDITION_OCCURRENCE,condition_concept_id,Yes,0,integer,0,"The CONDITION_CONCEPT_ID field is recommended for primary use in analyses, and must be used for network studies",,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,5,55,90,112",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
 CONDITION_OCCURRENCE,condition_start_date,Yes,0,date,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,Yes,1
 CONDITION_OCCURRENCE,condition_end_date,No,,date,0,,,No,,No,,,,,,,,No,,Yes,100,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,CONDITION_OCCURRENCE,CONDITION_START_DATE,1,Yes,1
 CONDITION_OCCURRENCE,condition_type_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,37,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
@@ -40,7 +40,7 @@ CONDITION_OCCURRENCE,visit_occurrence_id,No,,integer,0,,,No,,Yes,0,VISIT_OCCURRE
 CONDITION_OCCURRENCE,condition_source_value,No,,varchar(50),0,"This field is discouraged from use in analysis because it is not required to contain Standard Concepts that are used across the OHDSI community, and should only be used when Standard Concepts do not adequately represent the source detail for the Condition necessary for a given analytic use case.  Consider using CONDITION_CONCEPT_ID instead to enable standardized analytics that can be consistent across the network.  ",This code is mapped to a Standard Condition Concept in the Standardized Vocabularies and the original code is stored here for reference.,No,,No,,,,,,,,No,,Yes,100,No,,No,,Yes,10,CONDITION_CONCEPT_ID,,,,,,,,No,
 DRUG_EXPOSURE,drug_exposure_id,Yes,0,bigint,0,,,Yes,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 DRUG_EXPOSURE,person_id,Yes,0,bigint,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
-DRUG_EXPOSURE,drug_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"5,8,82",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
+DRUG_EXPOSURE,drug_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"4,5,8,82,88",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
 DRUG_EXPOSURE,drug_exposure_start_date,Yes,0,date,0,,"Valid entries include a start date of a prescription, the date a prescription was filled, or the date on which a Drug administration procedure was recorded.",No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,Yes,1
 DRUG_EXPOSURE,drug_exposure_end_date,Yes,0,date,0,,"The DRUG_EXPOSURE_END_DATE denotes the day the drug exposure ended for the patient. This could be that the duration of DRUG_SUPPLY was reached (in which case DRUG_EXPOSURE_END_DATETIME = DRUG_EXPOSURE_START_DATETIME + DAYS_SUPPLY -1 day), or because the exposure was stopped (medication changed, medication discontinued, etc.)   When the native data suggests a drug exposure has a days supply less than 0, drop the record as unknown if a person has received the drug or not (THEMIS issue #24).   If a patient has multiple records on the same day for the same drug or procedures the ETL should not de-dupe them unless there is probable reason to believe the item is a true data duplicate (THEMIS issue #14).  Depending on different sources, it could be a known or an inferred date and denotes the last day at which the patient was still exposed to Drug.",No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,DRUG_EXPOSURE,DRUG_EXPOSURE_START_DATE,1,Yes,1
 DRUG_EXPOSURE,drug_type_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,36,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
@@ -53,14 +53,14 @@ DRUG_EXPOSURE,visit_occurrence_id,No,,integer,0,,,No,,Yes,0,VISIT_OCCURRENCE,VIS
 DRUG_EXPOSURE,drug_source_value,No,,varchar(50),0,,"This code is mapped to a Standard Drug concept in the Standardized Vocabularies and the original code is, stored here for reference.",No,,No,,,,,,,,No,,Yes,100,No,,No,,Yes,10,DRUG_CONCEPT_ID,,,,,,,,No,
 PROCEDURE_OCCURRENCE,procedure_occurrence_id,Yes,0,integer,0,,,Yes,0,No,,,,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 PROCEDURE_OCCURRENCE,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
-PROCEDURE_OCCURRENCE,procedure_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,3,4,5,35",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
+PROCEDURE_OCCURRENCE,procedure_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,3,4,5,35,55,112,117,118",0,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
 PROCEDURE_OCCURRENCE,procedure_date,Yes,0,date,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,Yes,1
 PROCEDURE_OCCURRENCE,procedure_type_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,38,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 PROCEDURE_OCCURRENCE,visit_occurrence_id,No,,integer,0,,,No,,Yes,0,VISIT_OCCURRENCE,VISIT_OCCURRENCE_ID,,,,,No,,Yes,100,No,,No,,No,,,,,,,,,,No,
 PROCEDURE_OCCURRENCE,procedure_source_value,No,,varchar(50),0,,"This code is mapped to a standard procedure Concept in the Standardized Vocabularies and the original code is, stored here for reference. Procedure source codes are typically ICD-9-Proc, CPT-4, HCPCS or OPCS-4 codes.",No,,No,,,,,,,,No,,Yes,100,No,,No,,Yes,100,PROCEDURE_CONCEPT_ID,,,,,,,,No,
 OBSERVATION,observation_id,Yes,0,integer,0,,,Yes,0,No,,,,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 OBSERVATION,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
-OBSERVATION,observation_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,,,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
+OBSERVATION,observation_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,4,5,6,40,41,42,47,55,60,86,89,98,112,118",,,,Yes,0,Yes,0,Yes,5,No,,No,,,,,,,,,,No,
 OBSERVATION,observation_date,Yes,0,date,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,No,
 OBSERVATION,observation_type_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,39,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 OBSERVATION,value_as_number,No,,float,0,,,No,,No,,,,,,,,No,,Yes,100,No,,No,,No,,,,,,,,,,No,
@@ -99,7 +99,7 @@ PAYER_PLAN_PERIOD,plan_source_value,No,,varchar(50),0,,,No,,No,,,,,,,,No,,Yes,10
 PAYER_PLAN_PERIOD,family_source_value,No,,varchar(50),0,,,No,,No,,,,,,,,No,,Yes,100,No,,No,,No,0,,,,,,,,,No,
 DRUG_ERA,drug_era_id,Yes,0,integer,0,,,Yes,0,No,,,,,,,,,,Yes,0,No,,No,,No,,,,,,,,,,No,
 DRUG_ERA,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,,,Yes,0,No,,No,,No,,,,,,,,,,No,
-DRUG_ERA,drug_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"5,8,82",0,Ingredient,0,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
+DRUG_ERA,drug_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"4,5,8,82,88",0,Ingredient,0,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 DRUG_ERA,drug_era_start_date,Yes,0,datetime,0,,The Drug Era Start Date is the start date of the first Drug Exposure for a given ingredient.  (NOT RIGHT),No,,No,,,,,,,,,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,Yes,1
 DRUG_ERA,drug_era_end_date,Yes,0,datetime,0,,"The Drug Era End Date is the end date of the last Drug Exposure. The End Date of each Drug Exposure is either taken from the field drug_exposure_end_date or, as it is typically not available, inferred using the following rules:
 For pharmacy prescription data, the date when the drug was dispensed plus the number of days of supply are used to extrapolate the End Date for the Drug Exposure. Depending on the country-specific healthcare system, this supply information is either explicitly provided in the day_supply field or inferred from package size or similar information.
@@ -108,7 +108,7 @@ A standard Persistence Window of 30 days (gap, slack) is permitted between two s
 DRUG_ERA,drug_exposure_count,No,,integer,0,,,No,,No,,,,,,,,,,Yes,100,No,,No,,No,,,1,1,,,,,,No,
 CONDITION_ERA,condition_era_id,Yes,0,integer,0,,,Yes,0,No,,,,,,,,,,Yes,0,No,,No,,No,,,,,,,,,,No,
 CONDITION_ERA,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,,,Yes,0,No,,No,,No,,,,,,,,,,No,
-CONDITION_ERA,condition_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,5",0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
+CONDITION_ERA,condition_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,"1,5,55,90,112",0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 CONDITION_ERA,condition_era_start_date,Yes,0,datetime,0,,,No,,No,,,,,,,,,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,Yes,1
 CONDITION_ERA,condition_era_end_date,Yes,0,datetime,0,,,No,,No,,,,,,,,,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,"DATEFROMPARTS(YEAR_OF_BIRTH,MONTH_OF_BIRTH,DAY_OF_BIRTH)",1,No,
 CONDITION_ERA,condition_occurrence_count,No,,integer,0,,,No,,No,,,,,,,,,,Yes,100,No,,No,,No,,,1,1,,,,,,No,
