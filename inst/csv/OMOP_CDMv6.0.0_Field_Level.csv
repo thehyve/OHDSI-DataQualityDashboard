@@ -330,8 +330,8 @@ DOSE_ERA,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No
 DOSE_ERA,drug_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,Drug,0,Ingredient,0,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 DOSE_ERA,unit_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,Unit,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
 DOSE_ERA,dose_value,Yes,0,float,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,0,1,,,,,,No,
-DOSE_ERA,dose_era_start_date,Yes,0,datetime,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,BIRTH_DATETIME,1,Yes,1
-DOSE_ERA,dose_era_end_date,Yes,0,datetime,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,BIRTH_DATETIME,1,No,
+DOSE_ERA,dose_era_start_datetime,Yes,0,datetime,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,BIRTH_DATETIME,1,Yes,1
+DOSE_ERA,dose_era_end_datetime,Yes,0,datetime,0,,,No,,No,,,,,,,,No,,Yes,0,No,,No,,No,,,'1950-01-01',1,"DATEADD(dd,1,GETDATE())",1,PERSON,BIRTH_DATETIME,1,No,
 CONDITION_ERA,condition_era_id,Yes,0,integer,0,,,Yes,0,No,,,,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 CONDITION_ERA,person_id,Yes,0,integer,0,,,No,,Yes,0,PERSON,PERSON_ID,,,,,No,,Yes,0,No,,No,,No,,,,,,,,,,No,
 CONDITION_ERA,condition_concept_id,Yes,0,integer,0,,,No,,Yes,0,CONCEPT,CONCEPT_ID,Condition,0,,,Yes,0,Yes,0,Yes,0,No,,No,,,,,,,,,,No,
