@@ -438,12 +438,12 @@ executeDqChecks <- function(connectionDetails,
   on.exit(DatabaseConnector::disconnect(connection = connection))
   
   # capture metadata -----------------------------------------------------------------------
-  #sql <- SqlRender::render(sql = "select * from @cdmDatabaseSchema.cdm_source;",
-  #                         cdmDatabaseSchema = cdmDatabaseSchema)
-  #sql <- SqlRender::translate(sql = sql, targetDialect = connectionDetails$dbms)
-  #metadata <- DatabaseConnector::querySql(connection = connection, sql = sql)
+  sql <- SqlRender::render(sql = "select * from @cdmDatabaseSchema.cdm_source;",
+                           cdmDatabaseSchema = cdmDatabaseSchema)
+  sql <- SqlRender::translate(sql = sql, targetDialect = connectionDetails$dbms)
+  metadata <- DatabaseConnector::querySql(connection = connection, sql = sql)
   
-  #metadata$DQD_VERSION <- as.character(packageVersion("DataQualityDashboard"))
+  metadata$DQD_VERSION <- as.character(packageVersion("DataQualityDashboard"))
   
   # evaluate thresholds-------------------------------------------------------------------
   
