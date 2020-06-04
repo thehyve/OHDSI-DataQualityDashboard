@@ -503,7 +503,7 @@ executeDqChecks <- function(connectionDetails,
                  endTimestamp = endTime,
                  executionTime = sprintf("%.0f %s", delta, attr(delta, "units")),
                  CheckResults = checkResults, 
-                 Metadata = metadata, 
+                 Metadata = "metadata", 
                  Overview = overview)
   
   resultJson <- jsonlite::toJSON(result)
