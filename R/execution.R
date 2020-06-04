@@ -442,9 +442,9 @@ executeDqChecks <- function(connectionDetails,
                            cdmDatabaseSchema = cdmDatabaseSchema)
   sql <- SqlRender::translate(sql = sql, targetDialect = connectionDetails$dbms)
   metadata <- DatabaseConnector::querySql(connection = connection, sql = sql)
-  return(metadata)
-  metadata$DQD_VERSION <- as.character(packageVersion("DataQualityDashboard"))
-
+  
+  #metadata$DQD_VERSION <- as.character(packageVersion("DataQualityDashboard"))
+  
   # evaluate thresholds-------------------------------------------------------------------
   
   checkResults <- .evaluateThresholds(checkResults = checkResults, 
