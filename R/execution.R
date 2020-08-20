@@ -117,6 +117,7 @@
 #' @param connectionDetails         A connectionDetails object for connecting to the CDM database
 #' @param cdmDatabaseSchema         The fully qualified database name of the CDM schema
 #' @param resultsDatabaseSchema     The fully qualified database name of the results schema
+#' @param vocabDatabaseSchema       The fully qualified database name of the vocabulary schema (default is to set it as the cdmDatabaseSchema)
 #' @param numThreads                The number of concurrent threads to use to execute the queries
 #' @param cdmSourceName             The name of the CDM data source
 #' @param sqlOnly                   Should the SQLs be executed (FALSE) or just returned (TRUE)?
@@ -126,8 +127,14 @@
 #'                                  in the resultsDatabaseSchema. Default is TRUE.
 #' @param checkLevels               Choose which DQ check levels to execute. Default is all 3 (TABLE, FIELD, CONCEPT)
 #' @param checkNames                (OPTIONAL) Choose which check names to execute. Names can be found in inst/csv/OMOP_CDM_v[cdmVersion]_Check_Desciptions.csv
+#' @param cohortDefinitionId        The cohort definition id for the cohort you wish to run the DQD on. The package assumes a standard OHDSI cohort table called 'Cohort' 
+#'                                  with the fields cohort_definition_id and subject_id.
+#' @param cohortDatabaseSchema      The schema where the cohort table is located.
 #' @param tablesToExclude           (OPTIONAL) Choose which CDM tables to exclude from the execution.
 #' @param cdmVersion                The CDM version to target for the data source. By default, 5.3.1 is used.
+#' @param tableCheckThresholdLoc    The location of the threshold file for evaluating the table checks. If not specified the default thresholds will be applied.
+#' @param fieldCheckThresholdLoc    The location of the threshold file for evaluating the field checks. If not specified the default thresholds will be applied.
+#' @param conceptCheckThresholdLoc  The location of the threshold file for evaluating the concept checks. If not specified the default thresholds will be applied.
 #' 
 #' @return If sqlOnly = FALSE, a list object of results
 #' 
@@ -135,16 +142,23 @@
 executeDqChecks <- function(connectionDetails,
                             cdmDatabaseSchema,
                             resultsDatabaseSchema,
+                            vocabDatabaseSchema = cdmDatabaseSchema,
                             cdmSourceName,
                             numThreads = 1,
                             sqlOnly = FALSE,
                             outputFolder = "output",
                             verboseMode = FALSE,
                             writeToTable = TRUE,
+                            writeTableName = "dqdashboard_results",
                             checkLevels = c("TABLE", "FIELD", "CONCEPT"),
                             checkNames = c(),
+                            cohortDefinitionId = c(),
+                            cohortDatabaseSchema = resultsDatabaseSchema,
                             tablesToExclude = c(),
-                            cdmVersion = "5.3.1") {
+                            cdmVersion = "5.3.1",
+                            tableCheckThresholdLoc = "default",
+                            fieldCheckThresholdLoc = "default",
+                            conceptCheckThresholdLoc = "default") {
   
   options(scipen = 999)
   outputFolder <- file.path(outputFolder, cdmSourceName)
@@ -186,15 +200,25 @@ executeDqChecks <- function(connectionDetails,
   checkDescriptionsDf <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Check_Descriptions.csv", cdmVersion), 
                                             package = "DataQualityDashboard"), 
                                 stringsAsFactors = FALSE)
-  tableChecks <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Table_Level.csv", cdmVersion),
+  
+  
+if (tableCheckThresholdLoc == "default"){
+      tableChecks <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Table_Level.csv", cdmVersion),
+                              package = "DataQualityDashboard"), 
+                              stringsAsFactors = FALSE, na.strings = c(" ",""))} else {tableChecks <- read.csv(tableCheckThresholdLoc, 
+                                                                                      stringsAsFactors = FALSE, na.strings = c(" ",""))}
+  
+if (fieldCheckThresholdLoc == "default"){ 
+    fieldChecks <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Field_Level.csv", cdmVersion),
                                       package = "DataQualityDashboard"), 
-                          stringsAsFactors = FALSE)
-  fieldChecks <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Field_Level.csv", cdmVersion),
-                                      package = "DataQualityDashboard"), 
-                          stringsAsFactors = FALSE)
+                          stringsAsFactors = FALSE, na.strings = c(" ",""))} else {fieldChecks <- read.csv(fieldCheckThresholdLoc, 
+                                                                                   stringsAsFactors = FALSE, na.strings = c(" ",""))}
+  
+if (conceptCheckThresholdLoc == "default"){ 
   conceptChecks <- read.csv(system.file("csv", sprintf("OMOP_CDMv%s_Concept_Level.csv", cdmVersion),
                                       package = "DataQualityDashboard"), 
-                          stringsAsFactors = FALSE)
+                          stringsAsFactors = FALSE, na.strings = c(" ",""))} else {conceptChecks <- read.csv(conceptCheckThresholdLoc, 
+                                                                                     stringsAsFactors = FALSE, na.strings = c(" ",""))}
   
   # ensure we use only checks that are intended to be run -----------------------------------------
   
@@ -202,15 +226,17 @@ executeDqChecks <- function(connectionDetails,
     tablesToExclude <- toupper(tablesToExclude)
     ParallelLogger::logInfo(sprintf("CDM Tables skipped: %s", paste(tablesToExclude, collapse = ", ")))
     tableChecks <- tableChecks[!tableChecks$cdmTableName %in% tablesToExclude,]
-    fieldChecks <- fieldChecks[!fieldChecks$cdmTableName %in% tablesToExclude,]
+    fieldChecks <- fieldChecks[!fieldChecks$cdmTableName %in% tablesToExclude &
+                                 !fieldChecks$fkTableName %in% tablesToExclude &
+                                 !fieldChecks$plausibleTemporalAfterTableName %in% tablesToExclude,]
     conceptChecks <- conceptChecks[!conceptChecks$cdmTableName %in% tablesToExclude,]
   }
   
   library(magrittr)
-  tableChecks <- tableChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
-  fieldChecks <- fieldChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
-  conceptChecks <- conceptChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
-  
+  # tableChecks <- tableChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
+  # fieldChecks <- fieldChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
+  # conceptChecks <- conceptChecks %>% dplyr::select_if(function(x) !(all(is.na(x)) | all(x=="")))
+
   
   checksToInclude <- checkDescriptionsDf$checkName[sapply(checkDescriptionsDf$checkName, function(check) {
     !is.null(eval(parse(text = sprintf("tableChecks$%s", check)))) |
@@ -247,6 +273,9 @@ executeDqChecks <- function(connectionDetails,
                                               connectionDetails, 
                                               connection,
                                               cdmDatabaseSchema, 
+                                              vocabDatabaseSchema,
+                                              cohortDatabaseSchema,
+                                              cohortDefinitionId,
                                               outputFolder, sqlOnly)
   ParallelLogger::stopCluster(cluster = cluster)
   
@@ -271,15 +300,16 @@ executeDqChecks <- function(connectionDetails,
     
     ParallelLogger::logInfo("Execution Complete")  
   }
-  
-  ParallelLogger::unregisterLogger("DqDashboard")
+
   
   # write to table ----------------------------------------------------------------------
   
   if (!sqlOnly & writeToTable) {
     .writeResultsToTable(connectionDetails = connectionDetails,
                          resultsDatabaseSchema = resultsDatabaseSchema,
-                         checkResults = allResults$CheckResults)
+                         checkResults = allResults$CheckResults,
+                         writeTableName = writeTableName,
+                         cohortDefinitionId = cohortDefinitionId)
   }
   
   if (sqlOnly) {
@@ -287,6 +317,11 @@ executeDqChecks <- function(connectionDetails,
   } else {
     allResults  
   }
+  
+  
+  ParallelLogger::unregisterLogger("DqDashboard")
+  
+  return(allResults$CheckResults)
 }
 
 .runCheck <- function(checkDescription, 
@@ -296,6 +331,9 @@ executeDqChecks <- function(connectionDetails,
                       connectionDetails,
                       connection,
                       cdmDatabaseSchema, 
+                      vocabDatabaseSchema,
+                      cohortDatabaseSchema,
+                      cohortDefinitionId,
                       outputFolder, 
                       sqlOnly) {
   
@@ -306,6 +344,8 @@ executeDqChecks <- function(connectionDetails,
                               tolower(checkDescription$checkLevel),
                               checkDescription$evaluationFilter)
   checks <- eval(parse(text = filterExpression))
+  
+  if (length(cohortDefinitionId > 0)){cohort = TRUE} else {cohort = FALSE}
   
   if (sqlOnly) {
     unlink(file.path(outputFolder, sprintf("%s.sql", checkDescription$checkName)))
@@ -323,6 +363,10 @@ executeDqChecks <- function(connectionDetails,
                   list(packageName = "DataQualityDashboard"),
                   list(warnOnMissingParameters = FALSE),
                   list(cdmDatabaseSchema = cdmDatabaseSchema),
+                  list(cohortDatabaseSchema = cohortDatabaseSchema),
+                  list(cohortDefinitionId = cohortDefinitionId),
+                  list(vocabDatabaseSchema = vocabDatabaseSchema),
+                  list(cohort = cohort),
                   unlist(columns, recursive = FALSE))
       
       sql <- do.call(SqlRender::loadRenderTranslateSql, params)
@@ -354,9 +398,11 @@ executeDqChecks <- function(connectionDetails,
   
   checkResults$FAILED <- 0
   checkResults$THRESHOLD_VALUE <- NA
+  checkResults$NOTES_VALUE <- NA
   
   for (i in 1:nrow(checkResults)) {
     thresholdField <- sprintf("%sThreshold", checkResults[i,]$CHECK_NAME)
+    notesField <- sprintf("%sNotes", checkResults[i,]$CHECK_NAME)
     
     # find if field exists -----------------------------------------------
     thresholdFieldExists <- eval(parse(text = 
@@ -366,17 +412,25 @@ executeDqChecks <- function(connectionDetails,
     
     if (!thresholdFieldExists) {
       thresholdValue <- NA
+      notesValue <- NA
     } else {
       if (checkResults[i,]$CHECK_LEVEL == "TABLE") {
         
         thresholdFilter <- sprintf("tableChecks$%s[tableChecks$cdmTableName == '%s']",
                                    thresholdField, checkResults[i,]$CDM_TABLE_NAME)
+        notesFilter <- sprintf("tableChecks$%s[tableChecks$cdmTableName == '%s']",
+                                   notesField, checkResults[i,]$CDM_TABLE_NAME)
         
       } else if (checkResults[i,]$CHECK_LEVEL == "FIELD") {
         
         thresholdFilter <- sprintf("fieldChecks$%s[fieldChecks$cdmTableName == '%s' &
                                 fieldChecks$cdmFieldName == '%s']",
                                    thresholdField, 
+                                   checkResults[i,]$CDM_TABLE_NAME,
+                                   checkResults[i,]$CDM_FIELD_NAME)
+        notesFilter <- sprintf("fieldChecks$%s[fieldChecks$cdmTableName == '%s' &
+                                fieldChecks$cdmFieldName == '%s']",
+                                   notesField, 
                                    checkResults[i,]$CDM_TABLE_NAME,
                                    checkResults[i,]$CDM_FIELD_NAME)
         
@@ -392,6 +446,13 @@ executeDqChecks <- function(connectionDetails,
                                      checkResults[i,]$CDM_TABLE_NAME,
                                      checkResults[i,]$CDM_FIELD_NAME,
                                      checkResults[i,]$CONCEPT_ID)
+          notesFilter <- sprintf("conceptChecks$%s[conceptChecks$cdmTableName == '%s' &
+                                  conceptChecks$cdmFieldName == '%s' &
+                                  conceptChecks$conceptId == %s]",
+                                     notesField, 
+                                     checkResults[i,]$CDM_TABLE_NAME,
+                                     checkResults[i,]$CDM_FIELD_NAME,
+                                     checkResults[i,]$CONCEPT_ID)
         } else {
           
           thresholdFilter <- sprintf("conceptChecks$%s[conceptChecks$cdmTableName == '%s' &
@@ -403,11 +464,23 @@ executeDqChecks <- function(connectionDetails,
                                      checkResults[i,]$CDM_FIELD_NAME,
                                      checkResults[i,]$CONCEPT_ID,
                                      checkResults[i,]$UNIT_CONCEPT_ID)
+          notesFilter <- sprintf("conceptChecks$%s[conceptChecks$cdmTableName == '%s' &
+                                  conceptChecks$cdmFieldName == '%s' &
+                                  conceptChecks$conceptId == %s &
+                                  conceptChecks$unitConceptId == '%s']",
+                                     notesField, 
+                                     checkResults[i,]$CDM_TABLE_NAME,
+                                     checkResults[i,]$CDM_FIELD_NAME,
+                                     checkResults[i,]$CONCEPT_ID,
+                                     checkResults[i,]$UNIT_CONCEPT_ID)
         } 
       }
       
       thresholdValue <- eval(parse(text = thresholdFilter))
+      notesValue <- eval(parse(text = notesFilter))
+      
       checkResults[i,]$THRESHOLD_VALUE <- thresholdValue
+      checkResults[i,]$NOTES_VALUE <- notesValue
     }
     
     if (!is.na(checkResults[i,]$ERROR)) {
@@ -522,7 +595,9 @@ executeDqChecks <- function(connectionDetails,
 #' @export
 writeJsonResultsToTable <- function(connectionDetails,
                                     resultsDatabaseSchema,
-                                    jsonFilePath) {
+                                    jsonFilePath,
+                                    writeTableName = "dqdashboard_results",
+                                    cohortDefinitionId = c()) {
   
   jsonData <- jsonlite::read_json(jsonFilePath)
   checkResults <- lapply(jsonData$CheckResults, function(cr) {
@@ -531,25 +606,65 @@ writeJsonResultsToTable <- function(connectionDetails,
   })
   
   df <- do.call(plyr::rbind.fill, checkResults)
-  .writeResultsToTable(connectionDetails = connectionDetails,
-                       resultsDatabaseSchema = resultsDatabaseSchema,
-                       checkResults = df)
+  
+  connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
+  on.exit(DatabaseConnector::disconnect(connection = connection))
+  
+  if (length(cohortDefinitionId > 0)){
+    tableName <- sprintf("%s.%s_%s", resultsDatabaseSchema,writeTableName, cohortDefinitionId)
+  } else {tableName <- sprintf("%s.%s", resultsDatabaseSchema, writeTableName)}
+  
+  ParallelLogger::logInfo(sprintf("Writing results to table %s", tableName))
+  
+  if ("UNIT_CONCEPT_ID" %in% colnames(checkResults)){
+    ddl <- SqlRender::loadRenderTranslateSql(sqlFilename = "result_table_ddl_concept.sql", packageName = "DataQualityDashboard", tableName = tableName, dbms = connectionDetails$dbms)
+  } else if ("CDM_FIELD_NAME" %in% colnames(checkResults)){
+    ddl <- SqlRender::loadRenderTranslateSql(sqlFilename = "result_table_ddl_field.sql", packageName = "DataQualityDashboard", tableName = tableName, dbms = connectionDetails$dbms)
+  } else {
+    ddl <- SqlRender::loadRenderTranslateSql(sqlFilename = "result_table_ddl_table.sql", packageName = "DataQualityDashboard", tableName = tableName, dbms = connectionDetails$dbms)
+  }
+  
+  DatabaseConnector::executeSql(connection = connection, sql = ddl, progressBar = TRUE)
+  
+  tryCatch(
+    expr = {
+      DatabaseConnector::insertTable(connection = connection, tableName = tableName, data = df, 
+                                     dropTableIfExists = FALSE, createTable = FALSE, tempTable = FALSE)
+      ParallelLogger::logInfo("Finished writing table")
+    },
+    error = function(e) {
+      ParallelLogger::logError(sprintf("Writing table failed: %s", e$message))
+    }
+  )
+  
+  # .writeResultsToTable(connectionDetails = connectionDetails,
+  #                      resultsDatabaseSchema = resultsDatabaseSchema,
+  #                      checkResults = df)
 }
 
 .writeResultsToTable <- function(connectionDetails,
                                  resultsDatabaseSchema,
-                                 checkResults) {
+                                 checkResults,
+                                 writeTableName,
+                                 cohortDefinitionId) {
   
   connection <- DatabaseConnector::connect(connectionDetails = connectionDetails)
   on.exit(DatabaseConnector::disconnect(connection = connection))
-  tableName <- sprintf("%s.dqdashboard_results", resultsDatabaseSchema)
+  
+  if (length(cohortDefinitionId > 0)){
+    tableName <- sprintf("%s.%s_%s", resultsDatabaseSchema,writeTableName, cohortDefinitionId)
+  } else {tableName <- sprintf("%s.%s", resultsDatabaseSchema, writeTableName)}
   
   ParallelLogger::logInfo(sprintf("Writing results to table %s", tableName))
+  
+  ddl <- SqlRender::loadRenderTranslateSql(sqlFilename = "result_dataframe_ddl.sql", packageName = "DataQualityDashboard", tableName = tableName, dbms = connectionDetails$dbms)
+ 
+  DatabaseConnector::executeSql(connection = connection, sql = ddl, progressBar = TRUE)
   
   tryCatch(
     expr = {
       DatabaseConnector::insertTable(connection = connection, tableName = tableName, data = checkResults, 
-                                     dropTableIfExists = TRUE, createTable = TRUE, tempTable = FALSE)
+                                     dropTableIfExists = FALSE, createTable = FALSE, tempTable = FALSE)
       ParallelLogger::logInfo("Finished writing table")
     },
     error = function(e) {

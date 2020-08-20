@@ -9,26 +9,22 @@
 <title>Execute DQ checks — executeDqChecks • DataQualityDashboard</title>
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.4.0/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
-
-<!-- bootstrap-toc -->
-<link rel="stylesheet" href="../bootstrap-toc.css">
-<script src="../bootstrap-toc.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -39,8 +35,7 @@
 <meta property="og:title" content="Execute DQ checks — executeDqChecks" />
 
 <meta property="og:description" content="Execute DQ checks" />
-
-
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -57,7 +52,7 @@
 
   </head>
 
-  <body data-spy="scroll" data-target="#toc">
+  <body>
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -99,13 +94,19 @@
     <li>
       <a href="../articles/CheckTypeDescriptions.html">Data Quality Check Type Definitions</a>
     </li>
+    <li>
+      <a href="../articles/DqdForCohorts.html">Running the DQD on a Cohort</a>
+    </li>
+    <li>
+      <a href="../articles/Thresholds.html">Failure Thresholds and How to Change Them</a>
+    </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/OHDSI/DataQualityDashboard/">
+  <a href="https://github.com/OHDSI/DataQualityDashboard">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -138,16 +139,23 @@
   <span class='no'>connectionDetails</span>,
   <span class='no'>cdmDatabaseSchema</span>,
   <span class='no'>resultsDatabaseSchema</span>,
+  <span class='kw'>vocabDatabaseSchema</span> <span class='kw'>=</span> <span class='no'>cdmDatabaseSchema</span>,
   <span class='no'>cdmSourceName</span>,
   <span class='kw'>numThreads</span> <span class='kw'>=</span> <span class='fl'>1</span>,
   <span class='kw'>sqlOnly</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>outputFolder</span> <span class='kw'>=</span> <span class='st'>"output"</span>,
   <span class='kw'>verboseMode</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>writeToTable</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>writeTableName</span> <span class='kw'>=</span> <span class='st'>"dqdashboard_results"</span>,
   <span class='kw'>checkLevels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"TABLE"</span>, <span class='st'>"FIELD"</span>, <span class='st'>"CONCEPT"</span>),
   <span class='kw'>checkNames</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(),
+  <span class='kw'>cohortDefinitionId</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(),
+  <span class='kw'>cohortDatabaseSchema</span> <span class='kw'>=</span> <span class='no'>resultsDatabaseSchema</span>,
   <span class='kw'>tablesToExclude</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(),
-  <span class='kw'>cdmVersion</span> <span class='kw'>=</span> <span class='st'>"5.3.1"</span>
+  <span class='kw'>cdmVersion</span> <span class='kw'>=</span> <span class='st'>"5.3.1"</span>,
+  <span class='kw'>tableCheckThresholdLoc</span> <span class='kw'>=</span> <span class='st'>"default"</span>,
+  <span class='kw'>fieldCheckThresholdLoc</span> <span class='kw'>=</span> <span class='st'>"default"</span>,
+  <span class='kw'>conceptCheckThresholdLoc</span> <span class='kw'>=</span> <span class='st'>"default"</span>
 )</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -164,6 +172,10 @@
     <tr>
       <th>resultsDatabaseSchema</th>
       <td><p>The fully qualified database name of the results schema</p></td>
+    </tr>
+    <tr>
+      <th>vocabDatabaseSchema</th>
+      <td><p>The fully qualified database name of the vocabulary schema (default is to set it as the cdmDatabaseSchema)</p></td>
     </tr>
     <tr>
       <th>cdmSourceName</th>
@@ -199,12 +211,33 @@ in the resultsDatabaseSchema. Default is TRUE.</p></td>
       <td><p>(OPTIONAL) Choose which check names to execute. Names can be found in inst/csv/OMOP_CDM_v[cdmVersion]_Check_Desciptions.csv</p></td>
     </tr>
     <tr>
+      <th>cohortDefinitionId</th>
+      <td><p>The cohort definition id for the cohort you wish to run the DQD on. The package assumes a standard OHDSI cohort table called 'Cohort' 
+with the fields cohort_definition_id and subject_id.</p></td>
+    </tr>
+    <tr>
+      <th>cohortDatabaseSchema</th>
+      <td><p>The schema where the cohort table is located.</p></td>
+    </tr>
+    <tr>
       <th>tablesToExclude</th>
       <td><p>(OPTIONAL) Choose which CDM tables to exclude from the execution.</p></td>
     </tr>
     <tr>
       <th>cdmVersion</th>
       <td><p>The CDM version to target for the data source. By default, 5.3.1 is used.</p></td>
+    </tr>
+    <tr>
+      <th>tableCheckThresholdLoc</th>
+      <td><p>The location of the threshold file for evaluating the table checks. If not specified the default thresholds will be applied.</p></td>
+    </tr>
+    <tr>
+      <th>fieldCheckThresholdLoc</th>
+      <td><p>The location of the threshold file for evaluating the field checks. If not specified the default thresholds will be applied.</p></td>
+    </tr>
+    <tr>
+      <th>conceptCheckThresholdLoc</th>
+      <td><p>The location of the threshold file for evaluating the concept checks. If not specified the default thresholds will be applied.</p></td>
     </tr>
     </table>
     
@@ -214,10 +247,14 @@ in the resultsDatabaseSchema. Default is TRUE.</p></td>
     
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <nav id="toc" data-toggle="toc" class="sticky-top">
-      <h2 data-toc-skip>Contents</h2>
-    </nav>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
+
   </div>
 </div>
 
@@ -228,7 +265,7 @@ in the resultsDatabaseSchema. Default is TRUE.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
 
       </footer>

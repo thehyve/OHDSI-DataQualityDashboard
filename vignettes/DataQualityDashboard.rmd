@@ -1,3 +1,27 @@
+---
+title: "Getting Started"
+author: "Clair Blacketer"
+date: "`r Sys.Date()`"
+header-includes:
+    - \usepackage{fancyhdr}
+    - \pagestyle{fancy}
+    - \fancyhead{}
+    - \fancyhead[CO,CE]{Getting Started}
+    - \fancyfoot[CO,CE]{DataQualityDashboard Package Version `r    utils::packageVersion("DataQualityDashboard")`}
+    - \fancyfoot[LE,RO]{\thepage}
+    - \renewcommand{\headrulewidth}{0.4pt}
+    - \renewcommand{\footrulewidth}{0.4pt}
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+---
+
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Getting Started}
+-->
+
 # Getting Started
 ***
 
@@ -8,6 +32,11 @@ R Installation
 install.packages("devtools")
 devtools::install_github("OHDSI/DataQualityDashboard")
 ```
+
+Note
+=====
+To view the JSON results in the shiny application the package requires that the CDM_SOURCE table has at least one row with some details about the database. This is to ensure that some metadata is delivered along with the JSON, should it be shared. As a best practice it is recommended to always fill in this table during ETL or at least prior to running the DQD. 
+
 
 Executing Data Quality Checks
 ==============================
