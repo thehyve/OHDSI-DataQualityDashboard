@@ -4,6 +4,7 @@ library(htmlwidgets)
 library(htmltools)
 library(formattable)
 library(shinyWidgets)
+library(rpivotTable)
 # library(shinythemes)
 source("load_data_10.R")
 
@@ -111,5 +112,8 @@ ui <- tagList(
     
     shiny::tabPanel("ABOUT",
                     htmlOutput("Abo")),
+    
+    shiny::tabPanel("**Pivot**",
+                    rpivotTableOutput("pivot"))
   )
 )

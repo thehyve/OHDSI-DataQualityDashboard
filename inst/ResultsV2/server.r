@@ -378,4 +378,12 @@ server <- function(input, output) {
   output$Abo <- renderUI({
     getPageAbo()
   })
+  
+  output$pivot <- renderRpivotTable(
+    rpivotTable(
+      data = data2,
+      rows = c("CDM_TABLE_NAME", "CHECK_LEVEL"),
+      cols = c("CHECK_STATUS")
+    )
+  )
 }
