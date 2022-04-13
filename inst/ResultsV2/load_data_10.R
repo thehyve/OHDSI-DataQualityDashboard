@@ -13,13 +13,16 @@ data <- tibble(data)
 dataT <- select(data, contains("CheckResults")) %>%
   rename_(.dots = setNames(names(.), gsub("CheckResults.", "", names(.))))
 
-# Backwards compatibility
-# unique(dataNew$PASSED + dataNew$IS_ERROR + dataNew$FAILED + dataNew$NOT_APPLICABLE) = 1
+# Backwards compatibility. Approximating IS_ERROR and NOT_APPLICABLE
+if (!('ERROR' %in% names(dataT))) {
+  dataT <- dataT %>% mutate(ERROR = NA)
+}
+
 if (!('PASSED' %in% names(dataT))) {
   dataT <- dataT %>% mutate(
-    PASSED = as.integer(!FAILED),
-    IS_ERROR = round(runif(nrow(dataT), max=0.6)),
-    NOT_APPLICABLE = round(runif(nrow(dataT), max=0.6))
+    PASSED = as.integer(!(FAILED | is.na(NUM_DENOMINATOR_ROWS) | NUM_DENOMINATOR_ROWS == 0)),
+    IS_ERROR = as.integer(!is.na(ERROR)),
+    NOT_APPLICABLE = as.integer(is.na(NUM_DENOMINATOR_ROWS) | NUM_DENOMINATOR_ROWS == 0)
   )
 }
 
