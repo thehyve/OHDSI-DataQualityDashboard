@@ -13,6 +13,16 @@ data <- tibble(data)
 dataT <- select(data, contains("CheckResults")) %>%
   rename_(.dots = setNames(names(.), gsub("CheckResults.", "", names(.))))
 
+# Backwards compatibility
+# unique(dataNew$PASSED + dataNew$IS_ERROR + dataNew$FAILED + dataNew$NOT_APPLICABLE) = 1
+if (!('PASSED' %in% names(dataT))) {
+  dataT <- dataT %>% mutate(
+    PASSED = as.integer(!FAILED),
+    IS_ERROR = round(runif(nrow(dataT), max=0.6)),
+    NOT_APPLICABLE = round(runif(nrow(dataT), max=0.6))
+  )
+}
+
 ################################################
 #### TIBBLE OVERVIEW                        ####
 ################################################
